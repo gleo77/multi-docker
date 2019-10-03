@@ -1,0 +1,39 @@
+{
+    "AWSEBDockerrunVersion" : 2,
+    "containerDefinitions" : [
+        {
+            "name": "complex-client",
+            "image": "gregrozon/complex-client",
+            "hostname": "client",
+            "essential": false,
+            "memory": 128
+        },
+        {
+            "name": "complex-server",
+            "image": "gregrozon/complex-server",
+            "hostname": "api",
+            "essential": false,
+            "memory": 128
+        },
+        {
+            "name": "complex-worker",
+            "image": "gregrozon/complex-worker",
+            "hostname": "worker",
+            "essential": false,
+            "memory": 128
+        },
+        {
+            "name": "complex-nginx",
+            "image": "gregrozon/complex-nginx",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ],
+            "links": ["complex-client", "complex-server"],
+            "memory": 128
+        }
+    ]
+}
