@@ -1,0 +1,58 @@
+version: '3'
+services:
+  postgres:
+    image: 'postgres:11-alpine'
+  redis:
+    image: 'redis:alpine'
+  api:
+    build:
+      context: './server'
+      dockerfile: 'Dockerfile.dev'
+    image: 'gregrozon/complex-server'
+    volumes:
+      - /var/app/node_modules
+      - ./server:/var/app:Z
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PGUSER=postgres
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGPASSWORD=postgres_password
+      - PGPORT=5432
+    depends_on:
+      - redis
+      - postgres
+  client:
+    build:
+      context: './client'
+      dockerfile: 'Dockerfile.dev'
+    image: 'gregrozon/complex-client'
+    volumes:
+      - /var/app/node_modules
+      - ./client:/var/app:Z
+    depends_on:
+      - redis
+      - postgres
+  worker:
+    build:
+      context: './worker'
+      dockerfile: 'Dockerfile.dev'
+    image: 'gregrozon/complex-worker'
+    volumes:
+      - /var/app/node_modules
+      - ./worker:/var/app:Z
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+  nginx:
+    build:
+      context: './nginx'
+    image: 'gregrozon/complex-nginx'
+    restart: always
+    ports:
+      - '8080:80'
+    depends_on:
+      - client
